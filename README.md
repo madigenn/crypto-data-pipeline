@@ -6,7 +6,7 @@ Pipeline dati end-to-end che estrae dati di mercato delle criptovalute, li trasf
 
 L'obiettivo di questo progetto è simulare un flusso di lavoro realistico da Data Engineer: dall'estrazione di dati grezzi da una fonte esterna (API pubblica), alla loro trasformazione e pulizia, fino alla resa disponibile per l'analisi di business.
 
-Il progetto replica un pattern comune nei contesti aziendali: raw → clean → curated → reporting, e dimostra competenze pratiche su Python, PySpark, Databricks e Delta Lake.
+Il progetto replica un pattern comune nei contesti aziendali: raw → clean → curated → reporting, e dimostra competenze pratiche su Python, PySpark, Databricks, Delta Lake e Power BI.
 
 ## 🏗️ Architettura
 
@@ -15,10 +15,10 @@ CoinGecko API → Python (extract) → Databricks/PySpark (transform) → Delta 
 ## 🛠️ Stack tecnologico
 
 - **Python** – estrazione dati tramite API REST
-- **PySpark** – trasformazione e pulizia dati
+- **PySpark** – trasformazione, pulizia e analisi statistica dei dati
 - **Databricks** – ambiente di esecuzione e storage
 - **Delta Lake** – storage con versionamento (time travel)
-- **Power BI** – dashboard e visualizzazione (in corso)
+- **Power BI** – dashboard e visualizzazione
 
 ## 📁 Struttura del progetto
 
@@ -26,11 +26,13 @@ crypto-data-pipeline/
 ├── extract/
 │   └── extract_data.py               # Script Python di estrazione dati da CoinGecko
 ├── transform/
-│   └── transform_crypto_data.ipynb   # Notebook PySpark: pulizia, trasformazione, Delta Lake
+│   └── transform_crypto_data.ipynb   # Notebook PySpark: pulizia, trasformazione, analisi statistica, Delta Lake
 ├── data/
 │   └── raw_crypto_data_*.csv         # Dati grezzi estratti
+├── dashboard/
+│   └── crypto_dashboard.pbix         # Dashboard Power BI
 ├── docs/
-│   └── (screenshot dashboard, diagrammi)
+│   └── dashboard_overview.png        # Screenshot della dashboard
 ├── requirements.txt
 └── README.md
 
@@ -44,11 +46,19 @@ Su Databricks, i dati grezzi vengono:
 - Puliti e ridotti alle colonne rilevanti
 - Arricchiti con una colonna calcolata (volatility_flag) che classifica la volatilità in base alla variazione percentuale nelle 24h
 
-### 3. Storage con Delta Lake
+### 3. Analisi statistica
+Oltre alla classificazione base, il progetto integra un layer di analisi statistica più rigoroso:
+- **Z-score**: la volatilità viene misurata come deviazione standardizzata rispetto alla media di mercato, invece di soglie arbitrarie. Questo approccio si adatta al contesto: un calo del -5% può risultare "normale" in un giorno di mercato mediamente debole.
+- **Matrice di correlazione**: analizzata la relazione tra prezzo, market cap, volume e variazione 24h.
+
+
+### 4. Storage con Delta Lake
 I dati trasformati vengono salvati come tabella Delta, sfruttando il versionamento automatico: è possibile interrogare lo storico delle modifiche e tornare a versioni precedenti dei dati tramite time travel (VERSION AS OF).
 
-### 4. Visualizzazione (Power BI) — in corso
-Dashboard interattiva con KPI su market cap, variazioni di prezzo e distribuzione della volatilità. (sezione in aggiornamento)
+### 5. Visualizzazione (Power BI)
+Dashboard interattiva con KPI su market cap, variazione media 24h, e distribuzione della volatilità secondo l'analisi z-score.
+
+![Dashboard Overview](docs/dashboard_overview.png)
 
 ## ▶️ Come eseguire il progetto
 
@@ -61,15 +71,17 @@ Dashboard interattiva con KPI su market cap, variazioni di prezzo e distribuzion
    cd extract
    python extract_data.py
 4. Carica il CSV generato su Databricks e apri il notebook transform_crypto_data.ipynb
+5. Apri dashboard/crypto_dashboard.pbix in Power BI Desktop
 
 ## 📌 Stato del progetto
 
 - [x] Estrazione dati (Python)
 - [x] Trasformazione dati (PySpark)
+- [x] Analisi statistica (z-score, correlazione)
 - [x] Storage con Delta Lake + time travel
-- [ ] Dashboard Power BI
-- [ ] Screenshot e documentazione finale
+- [x] Dashboard Power BI
+- [x] Screenshot e documentazione finale
 
----
+
 
 Progetto realizzato per esercitarmi con lo stack Python/PySpark/Databricks/Power BI appreso durante il percorso formativo in Capgemini.
